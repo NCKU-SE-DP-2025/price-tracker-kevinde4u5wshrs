@@ -1,12 +1,11 @@
-from ..database import app
-from ..Loginverification import Loginverification
-from ..models import user_news_association_table
+from Loginverification import Loginverification
+from models import user_news_association_table
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import delete, insert, select
 
 routes=APIRouter()
-@app.post("/api/v1/news/{id}/upvote")
+@routes.post("/api/v1/news/{id}/upvote")
 def upvote_article(
         id,
         db=Depends(Loginverification.session_opener),

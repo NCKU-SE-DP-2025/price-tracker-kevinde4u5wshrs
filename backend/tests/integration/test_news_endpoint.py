@@ -4,12 +4,11 @@ from sqlalchemy import create_engine, StaticPool
 from sqlalchemy.orm import sessionmaker
 import json
 from jose import jwt
-from main import app
-from main import Base, NewsArticle, User, session_opener, user_news_association_table
-from main import NewsSumaryRequestSchema, PromptRequest
-from main import pwd_context
-from unittest.mock import Mock
-
+from Loginverification import Loginverification
+from models import User,NewsArticle
+from main import Base,app
+from database import NewsSumaryRequestSchema
+from unittest.mock import patch, Mock
 
 SECRET_KEY = "1892dhianiandowqd0n"
 ALGORITHM = "HS256"
@@ -27,7 +26,7 @@ def override_session_opener():
         db.close()
 
 
-app.dependency_overrides[session_opener] = override_session_opener
+app.dependency_overrides[Loginverification.session_opener] = override_session_opener
 client = TestClient(app)
 
 @pytest.fixture(scope="module")
@@ -38,7 +37,7 @@ def clear_users():
 
 @pytest.fixture(scope="module")
 def test_user(clear_users):
-    hashed_password = pwd_context.hash("testpassword")
+    hashed_password = Loginverification.hash_password("xxx")
 
     with next(override_session_opener()) as db:
         user = User(username="testuser", hashed_password=hashed_password)
@@ -57,6 +56,8 @@ def test_token(test_user):
 @pytest.fixture(scope="module")
 def test_articles():
     with next(override_session_opener()) as db:
+        db.query(NewsArticle).delete()
+        db.commit()
         article_1 = NewsArticle(
             url="https://example.com/test-news-1",
             title="Test News 1",
@@ -108,8 +109,9 @@ def test_read_user_news(test_user, test_token, test_articles):
     assert json_response[1]["title"] == "Test News 1"
     assert json_response[1]["is_upvoted"] is False
 
+
 def mock_openai(mocker, return_content):
-    mock_openai_client = mocker.patch('main.OpenAI')
+    mock_openai_client = mocker.patch('openai.OpenAI')
 
     mock_message = Mock()
     mock_message.content = return_content
@@ -125,23 +127,8 @@ def mock_openai(mocker, return_content):
     return mock_openai_client
 
 def test_search_news(mocker):
+
     mock_openai(mocker, "keywords")
-
-    mock_get_new_info = mocker.patch("main.get_new_info", return_value=[
-        {"titleLink": "http://example.com/news1"}
-    ])
-
-    mock_get = mocker.patch("main.requests.get", return_value=mocker.Mock(
-        text="""
-        <html>
-        <h1 class="article-content__title">Test Title</h1>
-        <time class="article-content__time">2024-09-10</time>
-        <section class="article-content__editor">
-            <p>This is a test paragraph.</p>
-        </section>
-        </html>
-        """
-    ))
 
     request_body = {"prompt": "Test search prompt"}
 
@@ -157,10 +144,10 @@ def test_search_news(mocker):
 
 
 def test_news_summary(mocker, test_token):
-    headers = {"Authorization": f"Bearer {test_token}"}
     openai_response = json.dumps({"影響": "test impact", "原因": "test reason"})
     mock_openai(mocker, openai_response)
 
+    headers = {"Authorization": f"Bearer {test_token}"}
     request_body = NewsSumaryRequestSchema(content="Test news content")
     response = client.post("/api/v1/news/news_summary", json=request_body.dict(), headers=headers)
 

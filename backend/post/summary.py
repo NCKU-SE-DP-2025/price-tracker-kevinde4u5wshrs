@@ -1,5 +1,5 @@
-from ..database import app,NewsSumaryRequestSchema
-from ..Loginverification import Loginverification
+from database import NewsSumaryRequestSchema
+from Loginverification import Loginverification
 
 
 from fastapi import APIRouter,Depends
@@ -7,7 +7,7 @@ from openai import OpenAI
 import json
 
 routes=APIRouter()
-@app.post("/api/v1/news/news_summary")
+@routes.post("/api/v1/news/news_summary")
 async def news_summary(
         payload: NewsSumaryRequestSchema, u=Depends(Loginverification.authenticate_user_token)
 ):
