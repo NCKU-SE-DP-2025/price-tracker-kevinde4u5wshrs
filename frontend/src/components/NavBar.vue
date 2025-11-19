@@ -21,7 +21,7 @@ export default {
     name: 'NavBar',
     data() {
     return {
-            menuOpen: window.innerWidth >= 769
+            menuOpen: window.innerWidth >= 768
         }
     },
     computed: {
