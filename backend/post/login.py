@@ -1,14 +1,11 @@
-from ..models import User
-from ..Loginverification import Loginverification
-from ..database import app
-
+from Loginverification import Loginverification
 from sqlalchemy.orm import Session
 from fastapi import APIRouter,Depends
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
 
 routes=APIRouter()
-@app.post("/api/v1/users/login")
+@routes.post("/api/v1/users/login")
 async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(), 
         db: Session = Depends(Loginverification.session_opener)

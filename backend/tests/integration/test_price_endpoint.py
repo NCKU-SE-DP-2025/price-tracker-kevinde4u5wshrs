@@ -2,7 +2,24 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch
 from main import app
+from sqlalchemy import create_engine, StaticPool
+from sqlalchemy.orm import sessionmaker
+from Loginverification import Loginverification
 
+SECRET_KEY = "1892dhianiandowqd0n"
+ALGORITHM = "HS256"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}, poolclass=StaticPool)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def override_session_opener():
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
+
+
+app.dependency_overrides[Loginverification.session_opener] = override_session_opener
 client = TestClient(app)
 
 @pytest.fixture

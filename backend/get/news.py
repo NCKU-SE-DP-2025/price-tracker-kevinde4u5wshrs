@@ -1,11 +1,9 @@
-from ..Loginverification import Loginverification
-from ..models import NewsArticle,user_news_association_table
-from ..database import app
-
+from Loginverification import Loginverification
+from models import NewsArticle,user_news_association_table
 from fastapi import APIRouter,Depends
 
 routes=APIRouter()
-@app.get("/api/v1/news/news")
+@routes.get("/api/v1/news/news")
 def read_news(db=Depends(Loginverification.session_opener)):
     """
     read new

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from apscheduler.schedulers.background import BackgroundScheduler
-
+import requests
+from Loginverification import OpenAI
 from get.me import routes as me_routes
 from get.price import routes as price_routes
 from get.news import routes as news_routes
@@ -21,6 +21,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # include 各路由
+
 app.include_router(me_routes)
 app.include_router(price_routes)
 app.include_router(news_routes)

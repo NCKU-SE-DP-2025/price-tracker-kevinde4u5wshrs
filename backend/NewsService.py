@@ -1,6 +1,6 @@
 import json
 from sqlalchemy.orm import Session
-from .models import NewsArticle
+from models import NewsArticle
 from openai import OpenAI
 from bs4 import BeautifulSoup
 from urllib.parse import quote

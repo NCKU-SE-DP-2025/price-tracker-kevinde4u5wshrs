@@ -1,5 +1,5 @@
-from ..database import app,PromptRequest
-from ..NewsService import NewsService
+from database import PromptRequest
+from NewsService import NewsService
 
 from fastapi import APIRouter
 from openai import OpenAI
@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import itertools
 
 routes=APIRouter()
-@app.post("/api/v1/news/search_news")
+@routes.post("/api/v1/news/search_news")
 async def search_news(request: PromptRequest):
     prompt = request.prompt
     news_list = []

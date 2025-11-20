@@ -1,11 +1,10 @@
-from ..database import app
-from ..Loginverification import Loginverification
-from ..models import NewsArticle,user_news_association_table
+from Loginverification import Loginverification
+from models import NewsArticle,user_news_association_table
 
 from fastapi import APIRouter,Depends
 
 routes=APIRouter()
-@app.get("/api/v1/news/user_news")
+@routes.get("/api/v1/news/user_news")
 def read_user_news(
         db=Depends(Loginverification.session_opener),
         user=Depends(Loginverification.authenticate_user_token)
